@@ -11,7 +11,7 @@
     - *traindataA*: relative Pfadangabe (ausgehend vom Verzeichnis KI-PVL) zu einem txt-Dokument, welches alle Trainingsdaten für Klasse A beinhaltet (z.B.: data/train/A.txt)
     - *traindataB*: relative Pfadangabe (ausgehend vom Verzeichnis KI-PVL) zu einem txt-Dokument, welches alle Trainingsdaten für Klasse B beinhaltet (z.B.: data/train/B.txt)
     - *data_to_be_classified*: relative Pfadangabe (ausgehend vom Verzeichnis KI-PVL) zu einem txt-Dokument, welches die zu klassifizierenden Daten enthält
-    - Der Aufruf mit den gegebenen Beispieldaten lautet somit `java NaiveBayesClassifier data/train/A.txt data/train/B.txt data/test.txt`
+    - Der Aufruf mit den gegebenen Beispieldaten (siehe "Aufbau der Dateien/Beispieldaten") lautet somit `java NaiveBayesClassifier data/train/A.txt data/train/B.txt data/test.txt`
 
 ## Aufbau der Dateien, welche Trainingsdaten oder die zu klassifizierenden Daten enthalten
 ### Trainingsdaten
@@ -25,8 +25,8 @@
 * Zeilen werden durch einen Zeilenumbruch (\n für Linux/MacOS oder \r\n für Windows) getrennt
 
 ### Beispieldaten
-Im Ordner *data* befinden sich Beispieldateien mit Beispieldaten aus der Vorlesung.
+Im Ordner *data* befinden sich Beispieldateien mit Beispieldaten aus Aufgabe 25 des KI-Praktikums.
 * Trainingsdaten: *data/train/A.txt* oder *data/train/B.txt*
-* Daten, die klassifiziert werden sollen: *data/test.txt*
+* Dokumente, die klassifiziert werden sollen: *data/test.txt*
 
 ## Verzeichnis- und Dateistruktur
