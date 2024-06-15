@@ -187,6 +187,8 @@ public class NaiveBayesClassifier {
         }
     }
 
+    /* Ermöglicht Ausführung des Klassifikators von der Kommandozeile aus. Sie prüft zusätzlich die
+    Angabe von Kommandozeilenparametern und ob die mitgegebenen Dateipfade tatsächlich existieren */
     public static void main(String[] args) throws IOException {
         if (args.length != 3 && args.length != 4) {
             System.out.println("Usage: java NaiveBayesClassifier <trainA> <trainB> <FileWithDocsToBeClassified> [includeWordsNotInDataToBeClassified]");
