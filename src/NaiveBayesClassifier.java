@@ -1,6 +1,6 @@
 import java.io.*;
-import java.nio.file.*;
 import java.util.*;
+import java.nio.file.*;
 
 public class NaiveBayesClassifier {
     /*
@@ -16,28 +16,15 @@ public class NaiveBayesClassifier {
     /*Anzahl der Dokumente in Klasse A/B */
     private int totalLinesA;
     private int totalLinesB;
-    /* Anzahl der Wörter in Klasse A/B */
-    private int totalWordsA;
-    private int totalWordsB;
-    /* Anzahl der Wörter im Vokabular */
-    private int vocabSize;
-    /* Dateipfad der Trainingsdaten von Klasse A/B */
-    private String fpA;
-    private String fpB;
 
     public NaiveBayesClassifier() {
         this.vocabulary = new HashSet<>();
         this.wordCountA = new HashMap<>();
         this.wordCountB = new HashMap<>();
-        this.totalWordsA = 0;
-        this.totalWordsB = 0;
-        this.vocabSize = 0;
     }
 
     /* Trainiert den Naive Bayes Classifier mit den Trainingsdaten von Klasse A und B durch Aufruf von trainClass() */
     public void train(String filePathA, String filePathB) throws IOException {
-        this.fpA = filePathA;
-        this.fpB = filePathB;
         if(!trainClass(filePathA, wordCountA, true))
         {
             System.out.println("train(): Error in training class A");
@@ -48,7 +35,6 @@ public class NaiveBayesClassifier {
             System.out.println("train(): Error in training class B");
             return;
         }
-        this.vocabSize = vocabulary.size();
     }
 
     /* Trainiert den Naive Bayes Classifier mit den Trainingsdaten von einer spezifischen Klasse (A oder B) */
@@ -75,13 +61,6 @@ public class NaiveBayesClassifier {
                 wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
             }
         }
-        
-        if (classA) {
-            totalWordsA += wordCount.size();
-        } else {
-            totalWordsB += wordCount.size();
-        }
-
         return true;
     }
 
@@ -178,7 +157,7 @@ public class NaiveBayesClassifier {
         String testFilePath = "../"+args[2];
 
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
-        classifier.train(trainPathA, trainPathB);
-        classifier.classify_all(testFilePath, includeWordsNotInTestData); //für jede Zeile classify aufrufen!
+        classifier.train(trainPathA, trainPathB); //trainiert den Classifier mit den Trainingsdaten von Klasse A und B
+        classifier.classify_all(testFilePath, includeWordsNotInTestData); //ruft für jede Zeile des Files (jedes Dokument) classify() auf
     }
 }
