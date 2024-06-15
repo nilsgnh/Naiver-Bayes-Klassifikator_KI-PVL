@@ -6,7 +6,7 @@
 * Studiengruppe: 22/041/62
 
 ## Benutzung
-* Kompilieren mit Aufruf von `./make.sh` oder dem Befehl `javac -d bin src/*.java`
+* Kompilieren mit dem Befehl `javac -d bin src/*.java`, ausgeführt im Basisverzeichnis (KI-PVL_s85449)
 * Starten des Programms durch `cd bin` und anschließend `java NaiveBayesClassifier <traindataA> <traindataB> <data_to_be_classified> [includeWordsNotInDataToBeClassified]`
     - *traindataA*: relative Pfadangabe (ausgehend vom Verzeichnis KI-PVL_s85449) zu einem txt-Dokument, welches alle Trainingsdaten für Klasse A beinhaltet (z.B.: data/train/A.txt)
     - *traindataB*: relative Pfadangabe (ausgehend vom Verzeichnis KI-PVL_s85449) zu einem txt-Dokument, welches alle Trainingsdaten für Klasse B beinhaltet (z.B.: data/train/B.txt)
@@ -41,4 +41,4 @@ Im Ordner *data* befinden sich Beispieldateien mit Beispieldaten aus Aufgabe 25 
 * `docs`: Hier befindet sich die Dokumentation der PVL, in welcher ich auf die Benutzung des Programms und die Klasse inkl. ihrer Methoden (Architektur) eingehe.
 * `src`: Hier befindet sich das gesamte Programm in Form von Java-Dateien, welches als Bernoulli Naive Bayes Klassifikator mit Laplace-Glättung fungiert. Mit übergebenenen Trainingsdaten können weitere Dokumente durch dieses Programm klassifiziert werden.
 * `bin`: Enthält die kompilierte Klassendatei (.class) der Java-Quellcodedatei (.java), die sich im src-Ordner befindet. Diese ist mittels *java Klassendateiname [Kommandozeilenparameter]* ausführbar.
-* `make.sh`: Kompiliert die Java-Dateien aus dem "src"-Verzeichnis zu einem im Verzeichnis "bin" ausführbaren Programm (nur bei  Linux).
+* `data`: Enthält bereits Beispielsdaten für Trainingsdaten für Klasse A und B (im Unterverzeichnis train) und eine Datei mit 2 zu klassifizierenden Dokumenten. Diese Beispieldaten entstammen der Aufgabe 25 aus dem KI-Prakiktum.

@@ -9,7 +9,7 @@ public class NaiveBayesClassifier {
     */
 
     /*Menge aller Wörter, die in den Trainingsdaten von Klasse A oder B vorkommen */
-    private Set<String> vocabulary; 
+    private Set<String> vocabulary;
     /*Mapping mit Wort als Schlüssel und die Anzahl, wie oft das Wort in Klasse A/B vorkommt als Integer-Wert: */
     private Map<String, Integer> wordCountA; 
     private Map<String, Integer> wordCountB;
@@ -27,19 +27,41 @@ public class NaiveBayesClassifier {
     public void train(String filePathA, String filePathB) throws IOException {
         if(!trainClass(filePathA, wordCountA, true))
         {
-            System.out.println("train(): Error in training class A");
+            System.out.println("train(): Error beim Trainieren von Klasse A");
             return;
         }
         if(!trainClass(filePathB, wordCountB, false))
         {
-            System.out.println("train(): Error in training class B");
+            System.out.println("train(): Error beim Trainieren von Klasse B");
             return;
         }
     }
 
     /* Trainiert den Naive Bayes Classifier mit den Trainingsdaten von einer spezifischen Klasse (A oder B) */
-    private boolean trainClass(String filePath, Map<String, Integer> wordCount, boolean classA) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath));
+    private boolean trainClass(String filePath, Map<String, Integer> wordCount, boolean classA){
+        boolean wasAdded = true;
+        List<String> lines = new ArrayList<>();
+        BufferedReader br = null;
+        try {
+            br = Files.newBufferedReader(Paths.get(filePath));
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+        }
+
         if (classA) {
             totalLinesA = lines.size();
         } 
@@ -48,13 +70,23 @@ public class NaiveBayesClassifier {
         }
 
         for(String line : lines){
-            Set<String> uniqueWordsInLine = new HashSet<>(); //HashSet speichert nur einzigartige Werte
-            String[] words = line.split("\\W+"); // \\W+ bedeutet, dass der String an einem oder mehreren nicht Wortzeichen getrennt wird
+            Set<String> uniqueWordsInLine = new HashSet<>(); //Set speichert nur einzigartige Werte
+            String[] words = line.split("\\W+"); //Trennung des Strings bei einem oder mehreren Nicht-Wort-Zeichen (\W+)
             for (String word : words) {
                 if (!word.isEmpty()) {
                     word = word.toLowerCase();
-                    uniqueWordsInLine.add(word);
-                    vocabulary.add(word);
+                    wasAdded=uniqueWordsInLine.add(word);
+                    /*if (wasAdded) {
+                        System.out.println("Das Wort " + word + " wurde zum Vokabular hinzugefügt.");
+                    } else {
+                        System.out.println("Das Wort " + word + " war bereits im Vokabular vorhanden.");
+                    }*/
+                    wasAdded = vocabulary.add(word);
+                    /*if (wasAdded) {
+                        System.out.println("Das Wort " + word + " wurde zum Vokabular hinzugefügt.");
+                    } else {
+                        System.out.println("Das Wort " + word + " war bereits im Vokabular vorhanden.");
+                    }*/
                 }
             }
             for (String word : uniqueWordsInLine) {
@@ -64,10 +96,29 @@ public class NaiveBayesClassifier {
         return true;
     }
 
-    /* Klassifiziert alle Dokumente (je eine Zeile) in einer Datei anhand der Trainingsdaten von Klasse A und B und gibt die Klassifizierung aus */
+    /* Klassifiziert alle Dokumente (je eine Zeile) in einer Datei anhand der Trainingsdaten von Klasse A und B und gibt die 
+    Klassifizierung aus */
     public void classify_all(String filePath, boolean includeWordsNotInTestData) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath));
         int i=1;
+        List<String> lines = new ArrayList<>();
+        BufferedReader br = null;
+        try {
+            br = Files.newBufferedReader(Paths.get(filePath));
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         System.out.println();
         System.out.println("Documents to be classified from file: " + filePath);
         for(String line : lines){
@@ -90,17 +141,14 @@ public class NaiveBayesClassifier {
             }
         }
 
-        //System.out.println("total training data class A (aus "+ fpA +"): "  + totalLinesA);
-        //System.out.println("total training data class B (aus "+ fpB +"): " + totalLinesB);
         double totalLines = totalLinesA + totalLinesB;
         double probA = totalLinesA / totalLines;
-        //System.out.println("p(A): " + probA);
         double probB = totalLinesB / totalLines;
-        //System.out.println("p(B): " + probB);
+        //System.out.println("prob(doc|A): " + probA);
+        //System.out.println("prob(doc|B): " + probB);
 
-        //System.out.println("-----------------------------");
         for (String word : uniqueWordsInDoc) {
-            //wenn das Wort im Vokabular enthalten ist, wird es in die Berechnung einbezogen
+            //wenn Wort im Vokabular enthalten, wird es in Berechnung einbezogen, ansonsten ignoriert
             if (vocabulary.contains(word)) {
                 int countA = wordCountA.getOrDefault(word, 0); //bekommt den Wert des Schlüssels word, wenn Schlüssel nicht existiert = 0
                 int countB = wordCountB.getOrDefault(word, 0);
@@ -109,10 +157,8 @@ public class NaiveBayesClassifier {
 
                 probA *= (countA + 1.0) / (totalLinesA + 2.0);
                 probB *= (countB + 1.0) / (totalLinesB + 2.0);
-                /*//System.out.println("countA+1: " + (countA+1));
-                //System.out.println("totalLinesA+2: " + (totalLinesA+2));*/
-                //System.out.println("(notfinal) prob(testdata|A): " + probA);
-                //System.out.println("(notfinal) prob(testdata|B): " + probB);
+                //System.out.println("(notfinal) prob(doc|A): " + probA);
+                //System.out.println("(notfinal) prob(doc|B): " + probB);
                 //System.out.println("-----------------------------");
             }
         }
@@ -122,11 +168,11 @@ public class NaiveBayesClassifier {
                 if(!uniqueWordsInDoc.contains(word)){
                     int countA = wordCountA.getOrDefault(word, 0);
                     int countB = wordCountB.getOrDefault(word, 0);
-                    //System.out.println("Word (not in testdata): " + word);
+                    //System.out.println("Word (not in doc): " + word);
                     probA *= 1-((countA + 1.0) / (totalLinesA + 2.0));
                     probB *= 1-((countB + 1.0) / (totalLinesB + 2.0));
-                    //System.out.println("(notfinal) prob(testdata|A): " + probA);
-                    //System.out.println("(notfinal) prob(testdata|B): " + probB);
+                    //System.out.println("(notfinal) prob(doc|A): " + probA);
+                    //System.out.println("(notfinal) prob(doc|B): " + probB);
                     //System.out.println("-----------------------------");
                 }
             }
@@ -155,6 +201,20 @@ public class NaiveBayesClassifier {
         String trainPathA = "../"+args[0];
         String trainPathB = "../"+args[1];
         String testFilePath = "../"+args[2];
+
+        //Prüfung ob die Pfade zu den Trainingsdaten und dem File mit den zu klassifizierenden Dokumenten existieren
+        if (!Files.exists(Paths.get(trainPathA))) {
+            System.out.println("Die Datei " + args[0] + " existiert nicht.");
+            return;
+        }
+        if (!Files.exists(Paths.get(trainPathB))) {
+            System.out.println("Die Datei " + args[1] + " existiert nicht.");
+            return;
+        }
+        if (!Files.exists(Paths.get(testFilePath))) {
+            System.out.println("Die Datei " + args[2] + " existiert nicht.");
+            return;
+        }
 
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
         classifier.train(trainPathA, trainPathB); //trainiert den Classifier mit den Trainingsdaten von Klasse A und B
