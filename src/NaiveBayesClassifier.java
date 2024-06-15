@@ -4,32 +4,24 @@ import java.util.*;
 
 public class NaiveBayesClassifier {
     /*
-    Klasse NaiveBayesClassifier implementiert einen Naive Bayes Classifier, der Dokumente auf Basis von 
-    Trainingsdaten in eine von zwei Klassen klassifiziert.
-        Methoden:
-            train: Trainiert den Naive Bayes Classifier mit den Trainingsdaten von Klasse A und B
-            classify: Klassifiziert ein Dokument anhand der Trainingsdaten von Klasse A und B
-            classify_all: Klassifiziert alle Dokumente in einer Datei anhand der Trainingsdaten von Klasse A und B und gibt die Klassifizierung aus
-        Klassenvariablen:
-            vocabulary: Menge aller Wörter, die in den Trainingsdaten von Klasse A oder B vorkommen
-            wordCountA: Mapping mit Wort als Schlüssel und die Anzahl, wie oft das Wort in Klasse A vorkommt als Integer-Wert
-            wordCountB: Mapping mit Wort als Schlüssel und die Anzahl, wie oft das Wort in Klasse B vorkommt als Integer-Wert
-            totalLinesA: Anzahl der Dokumente in Klasse A
-            totalLinesB: Anzahl der Dokumente in Klasse B
-            totalWordsA: Anzahl der Wörter in Klasse A
-            totalWordsB: Anzahl der Wörter in Klasse B
-            vocabSize: Anzahl der Wörter im Vokabular
-            fpA: Dateipfad der Trainingsdaten von Klasse A
-            fpB: Dateipfad der Trainingsdaten von Klasse B
-     */
-    private Set<String> vocabulary;
-    private Map<String, Integer> wordCountA;
+    Klasse NaiveBayesClassifier implementiert einen Bernoulli Naiven Bayes Klassifizierer mit Laplace Glättung, der Dokumente auf Basis von 
+    Trainingsdaten in eine von zwei Klassen (A,B) klassifiziert.
+    */
+
+    /*Menge aller Wörter, die in den Trainingsdaten von Klasse A oder B vorkommen */
+    private Set<String> vocabulary; 
+    /*Mapping mit Wort als Schlüssel und die Anzahl, wie oft das Wort in Klasse A/B vorkommt als Integer-Wert: */
+    private Map<String, Integer> wordCountA; 
     private Map<String, Integer> wordCountB;
+    /*Anzahl der Dokumente in Klasse A/B */
     private int totalLinesA;
     private int totalLinesB;
+    /* Anzahl der Wörter in Klasse A/B */
     private int totalWordsA;
     private int totalWordsB;
+    /* Anzahl der Wörter im Vokabular */
     private int vocabSize;
+    /* Dateipfad der Trainingsdaten von Klasse A/B */
     private String fpA;
     private String fpB;
 
@@ -42,15 +34,16 @@ public class NaiveBayesClassifier {
         this.vocabSize = 0;
     }
 
+    /* Trainiert den Naive Bayes Classifier mit den Trainingsdaten von Klasse A und B durch Aufruf von trainClass() */
     public void train(String filePathA, String filePathB) throws IOException {
         this.fpA = filePathA;
         this.fpB = filePathB;
-        if(!trainClass(filePathA, wordCountA))
+        if(!trainClass(filePathA, wordCountA, true))
         {
             System.out.println("train(): Error in training class A");
             return;
         }
-        if(!trainClass(filePathB, wordCountB))
+        if(!trainClass(filePathB, wordCountB, false))
         {
             System.out.println("train(): Error in training class B");
             return;
@@ -58,12 +51,13 @@ public class NaiveBayesClassifier {
         this.vocabSize = vocabulary.size();
     }
 
-    private boolean trainClass(String filePath, Map<String, Integer> wordCount) throws IOException {
+    /* Trainiert den Naive Bayes Classifier mit den Trainingsdaten von einer spezifischen Klasse (A oder B) */
+    private boolean trainClass(String filePath, Map<String, Integer> wordCount, boolean classA) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filePath));
-        if (filePath.endsWith("A.txt")) {
+        if (classA) {
             totalLinesA = lines.size();
         } 
-        else if(filePath.endsWith("B.txt")) {
+        else {
             totalLinesB = lines.size();
         }
 
@@ -82,15 +76,16 @@ public class NaiveBayesClassifier {
             }
         }
         
-        if (filePath.endsWith("A.txt")) {
+        if (classA) {
             totalWordsA += wordCount.size();
-        } else if (filePath.endsWith("B.txt")) {
+        } else {
             totalWordsB += wordCount.size();
         }
 
         return true;
     }
 
+    /* Klassifiziert alle Dokumente (je eine Zeile) in einer Datei anhand der Trainingsdaten von Klasse A und B und gibt die Klassifizierung aus */
     public void classify_all(String filePath, boolean includeWordsNotInTestData) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filePath));
         int i=1;
@@ -99,13 +94,14 @@ public class NaiveBayesClassifier {
         for(String line : lines){
             System.out.println("-------------------------------------------------");
             System.out.println("Classification of document " + i + ":");
-            System.out.println(classify(line, includeWordsNotInTestData));
+            System.out.println(classify(line, includeWordsNotInTestData, i));
             i++;
         }
         System.out.println();
     }
 
-    public String classify(String line, boolean includeWordsNotInTestData) throws IOException {
+    /* Klassifiziert ein Dokument anhand der Trainingsdaten von Klasse A und B */
+    public String classify(String line, boolean includeWordsNotInTestData, int i) throws IOException {
         Set<String> uniqueWordsInDoc = new HashSet<>();
 
         String[] words = line.split("\\W+");
@@ -127,7 +123,7 @@ public class NaiveBayesClassifier {
         for (String word : uniqueWordsInDoc) {
             //wenn das Wort im Vokabular enthalten ist, wird es in die Berechnung einbezogen
             if (vocabulary.contains(word)) {
-                int countA = wordCountA.getOrDefault(word, 0);//bekommt den Wert des Schlüssels word, wenn der Schlüssel nicht existiert, wird 0 zurückgegeben
+                int countA = wordCountA.getOrDefault(word, 0); //bekommt den Wert des Schlüssels word, wenn Schlüssel nicht existiert = 0
                 int countB = wordCountB.getOrDefault(word, 0);
 
                 //System.out.println("Word: " + word);
@@ -158,15 +154,17 @@ public class NaiveBayesClassifier {
         }
 
         if (probA > probB) {
-            return "prob(testdata|A) = " + probA + "\nprob(testdata|B) = " + probB +"\nThe test data was classified as class A with the probability: prob(testdata|A) = " + probA;
+            return "prob(doc" + i + "|A) = " + probA + "\nprob(doc" + i + "|B) = " + probB +"\nThe document " + i + 
+            " was classified as class A with the probability: prob(doc" + i + "|A) = " + probA;
         } else {
-            return "prob(testdata|A) = " + probA + "\nprob(testdata|B) = " + probB +"\nThe test data was classified as class B with the probability: prob(testdata|B) = " + probB;
+            return "prob(doc" + i + "|A) = " + probA + "\nprob(doc" + i + "|B) = " + probB +"\nThe document " + i + 
+            " was classified as class B with the probability: prob(doc" + i + "|B) = " + probB;
         }
     }
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3 && args.length != 4) {
-            System.out.println("Usage: java NaiveBayesClassifier <trainA> <trainB> <testFile> [includeWordsNotInDataToBeClassified]");
+            System.out.println("Usage: java NaiveBayesClassifier <trainA> <trainB> <FileWithDocsToBeClassified> [includeWordsNotInDataToBeClassified]");
             return;
         }
 
