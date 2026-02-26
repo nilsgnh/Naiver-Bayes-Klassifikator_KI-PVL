@@ -1,9 +1,4 @@
 # PVL Künstliche Intelligenz
-## Daten von Belegenden
-* Name: Nils Generlich
-* Bibliotheksnummer: s85449
-* Matrikelnummer: 53047
-* Studiengruppe: 22/041/62
 
 ## Benutzung
 * Ausgangspunkt ist das Basisverzeichnis `KI-PVL_s85449`
